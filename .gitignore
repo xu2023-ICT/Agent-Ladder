@@ -1,0 +1,26 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.uv/
+
+# node
+node_modules/
+
+# rust
+target/
+
+# misc
+*.log
+
+# local agent tool state
+.claude/
+.codex/
+
+# external reference checkouts
+reference-agents/
