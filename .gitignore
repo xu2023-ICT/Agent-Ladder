@@ -21,6 +21,7 @@ target/
 # local agent tool state
 .claude/
 .codex/
+skills-lock.json
 
 # external reference checkouts
 reference-agents/
