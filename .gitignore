@@ -8,6 +8,8 @@
 __pycache__/
 *.pyc
 .uv/
+.pytest_cache/
+*.egg-info/
 
 # node
 node_modules/
@@ -17,11 +19,14 @@ target/
 
 # misc
 *.log
+logs/
 
 # local agent tool state
+.agents/
 .claude/
 .codex/
 skills-lock.json
 
 # external reference checkouts
 reference-agents/
+.cache/
