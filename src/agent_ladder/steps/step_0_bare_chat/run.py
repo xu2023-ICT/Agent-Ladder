@@ -1,58 +1,40 @@
 """Step 0: pure chat, no loop, no tools.
 
-Oracle mode -- hand the model the files the reference patch touches and ask
-for a diff in one shot. This is the original SWE-bench paper's (2023)
-baseline methodology, used here as the score curve's starting point.
+No agent loop deciding what to do next, no tools -- but it's still a real
+chat: every turn sees the whole conversation so far, not just the latest
+message. `chat` is the bare primitive (messages in, one completion call,
+reply out); `turn` is what keeps a running conversation across turns.
 
-Run with: uv run python -m agent_ladder.steps.step_0_bare_chat.run
+Running it over a benchmark subset, extracting a patch, writing
+predictions, scoring: all of that is harness plumbing, not part of what
+"bare chat" teaches, so it lives under
+agent_ladder.benchmarks.swebench.step_0 instead.
 """
 
-import json
-from pathlib import Path
-
-from swebench.inference.make_datasets.utils import extract_diff, extract_minimal_patch
-
-from agent_ladder.benchmarks.swebench.dataset import load_subset
 from agent_ladder.shared.llm import complete
-from agent_ladder.steps.step_0_bare_chat.oracle import build_prompt
-
-OUTPUT_PATH = Path(__file__).resolve().parent / "predictions.jsonl"
-MODEL_NAME = "qwen3-max"
+from agent_ladder.shared.tui import AgentChatApp, TextEvent
 
 
-def solve(instance: dict) -> str:
-    prompt = build_prompt(instance)
-    resp = complete(
-        messages=[{"role": "user", "content": prompt}],
-        model=MODEL_NAME,
-        max_tokens=8192,
-        timeout=180,
-    )
-    raw = resp.choices[0].message.content or ""
-    return extract_minimal_patch(extract_diff(raw))
+def chat(messages: list[dict]):
+    return complete(messages=messages, max_tokens=8192, timeout=180)
 
 
-def main():
-    subset = load_subset()
-    predictions = []
-    for instance in subset:
-        instance_id = instance["instance_id"]
-        print(f"[{instance_id}] solving...")
-        patch = solve(instance)
-        predictions.append(
-            {
-                "instance_id": instance_id,
-                "model_name_or_path": MODEL_NAME,
-                "model_patch": patch,
-            }
-        )
-        print(f"[{instance_id}] patch length={len(patch)}")
+def turn(messages: list[dict]):
+    """Adapt `chat` to the terminal demo's event stream (see shared/tui.py).
 
-    with open(OUTPUT_PATH, "w") as f:
-        for pred in predictions:
-            f.write(json.dumps(pred) + "\n")
-    print(f"wrote {len(predictions)} predictions to {OUTPUT_PATH}")
+    `messages` is the running conversation, appended to in place so each
+    turn sees everything said before it -- otherwise every reply would be
+    answered with no memory of what came before, which isn't "chat".
+    """
+
+    def _turn(user_text: str):
+        messages.append({"role": "user", "content": user_text})
+        reply = chat(messages).choices[0].message.content
+        messages.append({"role": "assistant", "content": reply})
+        yield TextEvent(reply)
+
+    return _turn
 
 
 if __name__ == "__main__":
-    main()
+    AgentChatApp(turn([])).run()
