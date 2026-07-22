@@ -20,6 +20,7 @@ target/
 # misc
 *.log
 logs/
+results/
 
 # local agent tool state
 .agents/
