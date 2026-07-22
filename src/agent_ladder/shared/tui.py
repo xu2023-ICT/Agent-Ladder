@@ -10,6 +10,7 @@ from typing import Callable, Iterator, Union
 
 from textual import work
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.containers import VerticalScroll
 from textual.widgets import Footer, Header, Input, Markdown, Static
 
@@ -35,6 +36,12 @@ TurnFn = Callable[[str], Iterator[Event]]
 
 
 class AgentChatApp(App):
+    # Textual 8.x reassigns ctrl+c to "copy" and shows a hint to press
+    # ctrl+q instead -- reasonable for an editor, confusing here since this
+    # app has no text to copy. Rebind it back to quit, and make it show up
+    # in the footer since the base binding is hidden (show=False).
+    BINDINGS = [Binding("ctrl+c", "quit", "Quit", show=True, priority=True)]
+
     CSS = """
     #log {
         padding: 1 2;
