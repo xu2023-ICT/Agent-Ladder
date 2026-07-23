@@ -4,7 +4,7 @@
 
 Keep code comments and docstrings focused on the code's purpose, behavior, and non-obvious design constraints.
 
-Do not put local environment details, private gateway URLs, one-off debugging findings, or machine-specific setup notes in code comments. Put operational notes in this file and project planning notes in `PLAN.md`.
+Do not put local environment details, private gateway URLs, one-off debugging findings, or machine-specific setup notes in code comments. Keep private planning notes and one-off run artifacts out of the public repo.
 
 ## Step 目录结构:代码放哪、SWE-bench 代码在哪跑
 
@@ -27,10 +27,24 @@ Do not put local environment details, private gateway URLs, one-off debugging fi
 
 每个 `steps/step_N_xxx/README.md` 是写给"想快速看懂这一步在教什么"的读者看的,不是运行手册或排错笔记。固定四段,不多不少:
 
-1. **这一步是什么**:一两句话说清这一步新增的核心能力本身,不是测试机制。例如"没有 agent loop、没有工具,一次 completion 就是整个 step"。
+1. **这一步是什么**:一两句话说清这一步新增的核心能力本身,不是测试机制。例如"没有工具调用循环、没有工具,一次 completion 就是整个 step"。
 2. **怎么跑**:怎么跑**这一步自己的代码**——一段最小可用的调用示例(通常几行 Python,把这一步的核心函数/入口跑起来),让读者看到这一步教的东西长什么样。不是怎么跑 SWE-bench;benchmark 的生成/打分命令不属于这一段。
-3. **结果**:在固定 benchmark 子集上的一行分数,可以带一句跟历史基线或上一步的对比。不放怎么跑分的命令——benchmark 只是用来产出一个可比的数字,不是教学内容,跑分/排错这类操作细节记在 `docs/` 下的操作笔记里(如 `docs/running-swebench-pipeline.md`),不进 step README。
-4. **这个结果说明了什么**:重点段落,结合这一步的架构设计解释这个数字为什么是这样、暴露了什么局限、给下一步埋了什么伏笔。具体失败的 instance id、失败模式这类能支撑分析的细节留在这里,但只保留能解释"为什么"的部分,别堆砌运行日志式的流水账。
+3. **结果**:在固定 benchmark 子集上的一行分数,可以带一句跟历史基线或上一步的对比。不放怎么跑分的命令——benchmark 只是用来产出一个可比的数字,不是教学内容。
+4. **结果分析**:必须放在每章 README 的最后。结合这一步的架构设计解释这个数字为什么是这样、成功样本有什么共同点、失败样本主要卡在哪几类、这些失败给下一章新增能力埋了什么伏笔。具体失败的 instance id、失败模式这类能支撑分析的细节留在这里,但只保留能解释"为什么"的部分,别堆砌运行日志式的流水账。
+
+## 多参考 Agent 对比章节的目录结构
+
+当一章要教的能力值得跟主流 code agent 的真实设计对比时(目前每一章都是,参见 `step_1_bash`),`steps/step_N_xxx/` 下面按下面的骨架组织,不是一个 `run.py` 打天下:
+
+- **`minicode/`** —— 作者自己理解的最简实现,不对应任何具体真实项目,是这一章"从第一性原理出发该怎么设计"的基线版本。
+- **按参考 agent 命名的文件夹**(`claude_code/`、`codex/`、`hermes_agent/`、`kimi/`、`opencode/`、`pi_mono/`、`qwen_code/`、`trae_agent/` 这一组,后续章节沿用同一组名字),每个对应一个真实 code agent 项目在这一章能力上的设计。
+
+每个文件夹(含 `minicode`)内部:
+
+- `run.py` 必须能一键跑起来 TUI demo(`uv run python -m agent_ladder.steps.step_N_xxx.<folder>.run`),这是唯一跨文件夹强制一致的东西。
+- 除此之外内部怎么拆文件、核心逻辑叫什么名字、要不要单独的 `tool/` 包,不强求跨文件夹一致——参考对应的真实项目(`reference-agents/<agent>` 本地 checkout)自己的架构来定。参考 agent 的实现要保留真实的架构和关键实现细节(哪个文件对应真实项目哪个源码文件,值得在 README 里点名),但要屏蔽掉大量防御性代码——sandbox、权限审批、PTY、后台任务队列、并发调度这类生产 hardening 不是教学重点,砍掉。
+- 调研发现(读了参考项目哪些源码文件、复刻了什么设计、有意砍掉了什么)直接写进这个文件夹自己的 README.md,通常在"这一步是什么"和"结果分析"里点出具体源码文件路径。
+- 对应一个独立测试文件,1:1 命名(如 `tests/test_step_N_xxx_minicode.py`、`tests/test_step_N_xxx_claude_code.py`),不同文件夹的测试不合并到一个文件里。
 
 ## GitHub Push
 

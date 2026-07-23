@@ -21,6 +21,7 @@ target/
 *.log
 logs/
 results/
+PLAN.md
 
 # local agent tool state
 .agents/

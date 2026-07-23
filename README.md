@@ -6,11 +6,11 @@ Agent-Ladder 是一个从 0 开始的小白项目。
 
 每一章只新增一个主要能力, 并用同一套 benchmark 数据观察它带来的变化。你不只是在看代码怎么写, 也能直观看到每一项工具、每一次架构升级到底让 agent 多做了什么、少踩了什么坑。
 
-每一章还会对照几个当前最流行的 code agent 的实现或公开设计, 包括 Claude Code、Codex CLI、Kimi CLI、SWE-agent、trae-agent、Qwen Code 等。这个项目不是闭门造一个玩具 agent, 而是用一条从 0 到 1 的主线, 把主流 code agent 的设计拆开看。
+每一章还会对照几个当前最流行的 code agent 的实现或公开设计, 包括 Claude Code、Codex CLI、OpenCode、Pi、Kimi CLI、trae-agent、Qwen Code 等。这个项目不是闭门造一个玩具 agent, 而是用一条从 0 到 1 的主线, 把主流 code agent 的设计拆开看。
 
 ## 第一章: 裸聊天
 
-第一章没有 agent loop, 没有工具, 没有文件读写, 也没有测试执行。它只保留大模型最原始的使用方式: 把完整对话历史发给模型, 拿回一条回复。
+第一章没有工具调用循环, 没有工具, 没有文件读写, 也没有测试执行。它只保留大模型最原始的使用方式: 把完整对话历史发给模型, 拿回一条回复。
 
 这一章要说明的是 code agent 的起点有多薄:
 
