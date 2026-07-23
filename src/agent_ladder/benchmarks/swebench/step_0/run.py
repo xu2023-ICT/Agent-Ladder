@@ -13,7 +13,7 @@ from swebench.inference.make_datasets.utils import extract_diff, extract_minimal
 from agent_ladder.benchmarks.swebench.dataset import load_subset
 from agent_ladder.benchmarks.swebench.oracle import build_prompt
 from agent_ladder.shared.llm import DEFAULT_MODEL
-from agent_ladder.steps.step_0_bare_chat.run import chat
+from agent_ladder.steps.step_0_bare_chat.chat import chat
 
 OUTPUT_PATH = Path(__file__).resolve().parent / "predictions.jsonl"
 
